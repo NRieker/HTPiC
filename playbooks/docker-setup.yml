@@ -1,0 +1,45 @@
+---
+- name: Setup Raspberry Pi's for RetroPie install
+  hosts: htpic
+
+  tasks:
+    - name: Disable overscan
+      become: yes
+      lineinfile:
+        path: /boot/config.txt
+        state: present
+        regexp: 'disable_overscan'
+        line: 'disable_overscan=1'
+
+    - name: Enable hdmi force hotplug
+      become: yes
+      lineinfile:
+        path: /boot/config.txt
+        state: present
+        regexp: 'hdmi_force_hotplug'
+        line: 'hdmi_force_hotplug=1'
+
+    - name: Set GPU memory to 128 MB
+      become: yes
+      lineinfile:
+        path: /boot/config.txt
+        state: present
+        regexp: 'gpu_mem'
+        line: 'gpu_mem=128'
+        
+    - name: Get the latest Docker convenience script
+      shell: curl -fsSL https://get.docker.com -o get-docker.sh
+      args:
+        chdir: /home/pi/
+          
+    - name: Execute Docker convenience script
+      become: yes
+      shell: get-docker.sh
+      args:
+        chdir: /home/pi/
+        
+    - name: Add pi to the docker group
+      user:
+        name: pi
+        group: docker
+        append: yes
