@@ -34,11 +34,12 @@
           
     - name: Execute Docker convenience script
       become: yes
-      shell: get-docker.sh
+      shell: sh get-docker.sh
       args:
         chdir: /home/pi/
         
     - name: Add pi to the docker group
+      become: yes
       user:
         name: pi
         group: docker
