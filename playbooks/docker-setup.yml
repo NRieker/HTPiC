@@ -26,21 +26,35 @@
         state: present
         regexp: 'gpu_mem'
         line: 'gpu_mem=128'
-        
+
     - name: Get the latest Docker convenience script
-      shell: curl -fsSL https://get.docker.com -o get-docker.sh
-      args:
-        chdir: /home/pi/
+      get_url:
+        url: https://get.docker.com
+        dest: /home/pi/get-docker.sh
+        mode: '0755'
+        
+    - name: Check if Docker binary exists
+      stat:
+        path: /usr/bin/docker
+      register: docker_bin
           
     - name: Execute Docker convenience script
       become: yes
       shell: sh get-docker.sh
       args:
         chdir: /home/pi/
+      when: docker_bin.stat.exists == False
         
     - name: Add pi to the docker group
       become: yes
       user:
         name: pi
-        group: docker
+        groups: docker
         append: yes
+        state: present
+        
+    - name: Clean up the Docker convenience script
+      file:
+        path: /home/pi/get-docker.sh
+        state: absent
+...
