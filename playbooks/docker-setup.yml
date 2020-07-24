@@ -28,12 +28,14 @@
         line: 'gpu_mem=128'
 
     - name: Get the latest Docker convenience script
+      become_user: pi
       get_url:
         url: https://get.docker.com
         dest: /home/pi/get-docker.sh
         mode: '0755'
         
     - name: Check if Docker binary exists
+      become_user: pi
       stat:
         path: /usr/bin/docker
       register: docker_bin
@@ -54,6 +56,7 @@
         state: present
         
     - name: Clean up the Docker convenience script
+      become_user: pi
       file:
         path: /home/pi/get-docker.sh
         state: absent

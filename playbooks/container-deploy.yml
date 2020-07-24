@@ -1,0 +1,12 @@
+---
+- name: Deploy containers on HTPiC host
+  hosts: htpic
+
+  tasks:
+    - name: Deploy hello world container
+      become_user: pi
+      docker_container:
+        name: helloworld
+        image: hello-world
+        state: present
+...
