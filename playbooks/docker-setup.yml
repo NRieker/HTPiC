@@ -60,4 +60,16 @@
       file:
         path: /home/pi/get-docker.sh
         state: absent
+        
+    - name: Remove backports.ssl-match-hostname from pip
+      become: yes
+      pip:
+        name: backports.ssl-match-hostname
+        state: absent
+        
+    - name: Install python-backports.ssl-match-hostname apt package
+      become: yes
+      apt:
+        name: python-backports.ssl-match-hostname
+        state: present
 ...

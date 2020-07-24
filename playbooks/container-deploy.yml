@@ -3,10 +3,24 @@
   hosts: htpic
 
   tasks:
-    - name: Deploy hello world container
+    - name: Create portainer_data volume
+      become: yes
+      file:
+        path: /var/lib/docker/volumes/portainer_data
+        state: directory
+        mode: '0755'
+    
+    - name: Deploy portainer
       become_user: pi
       docker_container:
-        name: helloworld
-        image: hello-world
-        state: present
+        name: portainer
+        image: portainer/portainer
+        state: started
+        restart_policy: always
+        ports:
+          - "8000:8000"
+          - "9000:9000"
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
+          - "/var/lib/docker/volumes/portainer_data:/data"
 ...
