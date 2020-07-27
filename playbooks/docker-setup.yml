@@ -72,4 +72,10 @@
       apt:
         name: python-backports.ssl-match-hostname
         state: present
+
+    - name: Install docker via pip
+      become: yes
+      pip:
+        name: docker
+        state: present
 ...
