@@ -3,10 +3,10 @@
   hosts: htpic
 
   tasks:
-    - name: Create portainer_data volume
+    - name: Create portainer volume
       become: yes
       file:
-        path: /var/lib/docker/volumes/portainer_data
+        path: /var/lib/docker/volumes/portainer/data
         state: directory
         mode: '0755'
     
@@ -22,14 +22,14 @@
           - "9000:9000"
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
-          - "/var/lib/docker/volumes/portainer_data:/data"
+          - "/var/lib/docker/volumes/portainer/data:/data"
         env:
           TZ: "America/New_York"
           
     - name: Create heimdall volume
       become: yes
       file:
-        path: /var/lib/docker/volumes/heimdall
+        path: /var/lib/docker/volumes/heimdall/config
         state: directory
         mode: '0755'
           
@@ -45,7 +45,7 @@
           - "444:443"
           - "81:80"
         volumes:
-          - "/var/lib/docker/volumes/heimdall:/config"
+          - "/var/lib/docker/volumes/heimdall/config:/config"
         env:
           TZ: "America/New_York"
           PUID: "1000"
@@ -58,23 +58,23 @@
         state: directory
         mode: '0755'
       loop:
-        - /var/lib/docker/volumes/config
-        - /var/lib/docker/volumes/transcode
-        - /var/lib/docker/volumes/media
+        - /var/lib/docker/volumes/plex/config
+        - /var/lib/docker/volumes/plex/transcode
+        - /var/lib/docker/volumes/plex/media
 
     - name: Deploy plex
       become_user: pi
       docker_container:
         name: plex
         hostname: plex
-        image: plexinc/pms-docker  
+        image: linuxserver/plex 
         restart_policy: always
         recreate: yes
-        #network_mode: host
+        network_mode: bridge
         volumes:
-          - "/var/lib/docker/volumes/config:/config"
-          - "/var/lib/docker/volumes/transcode:/transcode"
-          - "/var/lib/docker/volumes/media:/media"
+          - "/var/lib/docker/volumes/plex/config:/config"
+          - "/var/lib/docker/volumes/plex/transcode:/transcode"
+          - "/var/lib/docker/volumes/plex/media:/data"
         ports:
           - "32400:32400/tcp"
           - "3005:3005/tcp"
@@ -87,10 +87,10 @@
           - "32414:32414/udp"
         env:
           TZ: "America/New_York"
-          HOSTNAME: "Docker Plex"
-          PLEX_CLAIM: "plexclaimkey"
-          PLEX_UID: "1000"
-          PLEX_GID: "1000"
-          ALLOWED_NETWORKS: "192.168.1.0/255.255.254.0"
+          HOSTNAME: "PlexServer"
+          PLEX_CLAIM: "claim-h3QX9RHyXfswA5pxBcSj"
+          PUID: "1000"
+          PGID: "1000"
+          ALLOWED_NETWORKS: "192.168.1.0/24"
           ADVERTISE_IP: "http://192.168.1.73:32400"
 ...
