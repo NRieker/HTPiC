@@ -93,4 +93,75 @@
           PGID: "1000"
           ALLOWED_NETWORKS: "192.168.1.0/24"
           ADVERTISE_IP: "http://192.168.1.73:32400"
+         
+    - name: Create radarr volume
+      become: yes
+      file:
+        path: /var/lib/docker/volumes/radarr/data
+        state: directory
+        mode: '0755'
+          
+    - name: Create radarr additional volumes
+      become_user: pi
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /media/pi/69E1-4ABE/radarr/watch
+        - /media/pi/69E1-4ABE/radarr/completed
+        - /media/pi/69E1-4ABE/radarr/incomplete
+          
+    - name: Deploy radarr
+      docker_container:
+        name: transmission-vpn-radarr
+        hostname: transmission-vpn-radarr
+        image: haugene/transmission-openvpn:latest-armhf
+        restart_policy: always  
+        recreate: yes
+        capabilities:
+          - "NET_ADMIN"
+        ports:
+          - "9091:9091"
+        dns_servers:
+          - "1.1.1.1"
+          - "1.0.0.1"
+        volumes:
+          - "/var/lib/docker/volumes/radarr/data:/data"
+          - "/etc/localtime:/etc/localtime:ro"
+          - "/media/pi/69E1-4ABE/radarr/watch:/data/watch"
+          - "/media/pi/69E1-4ABE/radarr/completed:/data/completed"
+          - "/media/pi/69E1-4ABE/radarr/incomplete:/data/incomplete"
+        env:
+          OPENVPN_PROVIDER: "nordvpn"
+          OPENVPN_USERNAME: 
+          OPENVPN_PASSWORD: 
+          #OPENVPN_CONFIG: "default"
+          #OPENVPN_OPTS: "--inactive 3600 --ping 10 --ping-exit 60"
+          LOCAL_NETWORK: "192.168.1.0/24"
+          WEBPROXY_ENABLED: "false"
+          CREATE_TUN_DEVICE: "true"
+          PUID: "1000"
+          PGID: "1000"
+          TZ: "America/New_York"
+          #TRANSMISSION_RPC_AUTHENTICATION_REQUIRED: "false"
+          #TRANSMISSION_RPC_HOST_WHITELIST: "127.0.0.1,192.168.*.*"
+          #TRANSMISSION_RPC_PASSWORD:
+          #TRANSMISSION_RPC_USERNAME:
+          #TRANSMISSION_UMASK: "002"
+          #TRANSMISSION_RATIO_LIMIT: "1.00"
+          #TRANSMISSION_RATIO_LIMIT_ENABLED: "true"
+          #TRANSMISSION_DOWNLOAD_LIMIT_ENABLED: "0"
+          #TRANSMISSION_DOWNLOAD_QUEUE_ENABLED: "false"
+          #TRANSMISSION_DOWNLOAD_QUEUE_SIZE: "999"
+          #TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED: "false"
+          #TRANSMISSION_MAX_PEERS_GLOBAL: "999"
+          #TRANSMISSION_PEER_LIMIT_GLOBAL: "999"
+          #TRANSMISSION_PEER_LIMIT_PER_TORRENT: "999"
+          #TRANSMISSION_SEED_QUEUE_ENABLED: "false"
+          #TRANSMISSION_SPEED_LIMIT_DOWN_ENABLED: "false"      
+          #TRANSMISSION_SPEED_LIMIT_UP_ENABLED: "true"
+          #TRANSMISSION_SPEED_LIMIT_UP: "1"
+          #TRANSMISSION_START_ADDED_TORRENTS: "true"
+          #TRANSMISSION_TRASH_ORIGINAL_TORRENT_FILES: "false"
 ...
